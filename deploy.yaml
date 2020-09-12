@@ -19,6 +19,7 @@ services:
     container_name: ddl-redis
     volumes:
       - ~/data/ddl-redis:/data
+    restart: always
     ports:
       - '0.0.0.0:6379:6379'
     networks:
@@ -29,6 +30,7 @@ services:
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
     image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
     container_name: ddl-celery
+    restart: always
     depends_on:
       - ddl-redis
       - ddl-postgres
@@ -45,6 +47,7 @@ services:
       - ~/data/upload/problem_pdf:/upload/problem_pdf
     image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
     container_name: ddl-backend
+    restart: always
     depends_on:
       - ddl-redis
       - ddl-postgres
@@ -60,6 +63,7 @@ services:
     container_name: ddl-web
     depends_on:
       - ddl-backend
+    restart: always
     environment:
       - BACKEND_HOST=ddl-backend
       - BACKEND_PORT=8000
