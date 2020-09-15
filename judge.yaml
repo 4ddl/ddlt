@@ -1,0 +1,23 @@
+version: "3"
+services:
+  ddl-judge-dev:
+    command: celery -A tasks worker -l info -Q judge
+    volumes:
+      - .:/app
+      - ~/data/ddl-backend/test_cases:/judge/test_cases
+    image: 4ddl/ddlcw
+    container_name: ddl-judge-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - BACKEND_HOST=127.0.0.1
+      - BACKEND_PROTOCOL=http
+      - BACKEND_PORT=8000
+      - RABBITMQ_HOST=192.168.50.10
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+      - DDLCW_DEBUG=True
+      - DDLCW_SYNC_ENABLE=False

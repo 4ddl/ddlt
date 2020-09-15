@@ -10,8 +10,6 @@ services:
       - POSTGRES_DB=ddl_database
       - POSTGRES_USER=ddl_username
       - POSTGRES_PASSWORD=ddl_password
-    ports:
-      - '0.0.0.0:5432:5432'
     networks:
       - ddl
   ddl-redis:
@@ -20,42 +18,37 @@ services:
     volumes:
       - ~/data/ddl-redis:/data
     restart: always
-    ports:
-      - '0.0.0.0:6379:6379'
     networks:
       - ddl
-  ddl-celery:
-    command: celery -A ddl worker -l info
-    volumes:
-      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
-    image: 4ddl/ddlb
-    container_name: ddl-celery
+  ddl-rabbitmq:
+    image: rabbitmq
+    container_name: ddl-rabbitmq
     restart: always
-    depends_on:
-      - ddl-redis
-      - ddl-postgres
+    hostname: my-rabbit
+    ports:
+      - '0.0.0.0:5672:5672'
     environment:
-      - REDIS_HOST=ddl-redis
-      - POSTGRES_HOST=ddl-postgres
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - ~/data/ddl_rabbitmq_dev:/var/lib/rabbitmq
     networks:
       - ddl
   ddl-backend:
     command: bash /app/docker/entrypoint.sh
     volumes:
-      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
-      - ~/data/upload/problem_image:/upload/problem_image
-      - ~/data/upload/problem_pdf:/upload/problem_pdf
+      - ~/data/ddl-backend:/data
     image: 4ddl/ddlb
     container_name: ddl-backend
     restart: always
     depends_on:
       - ddl-redis
       - ddl-postgres
+      - ddl-rabbitmq
     environment:
       - REDIS_HOST=ddl-redis
       - POSTGRES_HOST=ddl-postgres
-    ports:
-      - '0.0.0.0:8000:8000'
+      - RABBITMQ_HOST=ddl-rabbitmq
     networks:
       - ddl
   ddl-web:
