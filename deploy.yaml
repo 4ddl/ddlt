@@ -17,7 +17,7 @@ services:
       - ~/data/ddl-redis:/data
     restart: always
   ddl-rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:management
     container_name: ddl-rabbitmq
     restart: always
     hostname: my-rabbit
@@ -64,6 +64,8 @@ services:
     environment:
       - BACKEND_HOST=ddl-backend
       - BACKEND_PORT=8000
+      - RABBITMQ_MANAGEMENT_HOST=ddl-rabbitmq
+      - RABBITMQ_MANAGEMENT_PORT=15672
     ports:
       - '0.0.0.0:80:80'
 
