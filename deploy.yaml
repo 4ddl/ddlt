@@ -1,24 +1,24 @@
 version: "3"
 services:
-  ddl-postgres:
+  oj-postgres:
     image: postgres:alpine
-    container_name: ddl-postgres
+    container_name: oj-postgres
     restart: always
     volumes:
-      - ~/data/ddl-postgres:/var/lib/postgresql/data
+      - ~/data/oj-postgres:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=ddl
-      - POSTGRES_USER=ddlu
-      - POSTGRES_PASSWORD=ddlp
-  ddl-redis:
+      - POSTGRES_DB=oj
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+  oj-redis:
     image: redis:alpine
-    container_name: ddl-redis
+    container_name: oj-redis
     volumes:
-      - ~/data/ddl-redis:/data
+      - ~/data/oj-redis:/data
     restart: always
-  ddl-rabbitmq:
+  oj-rabbitmq:
     image: rabbitmq:management
-    container_name: ddl-rabbitmq
+    container_name: oj-rabbitmq
     restart: always
     hostname: my-rabbit
     ports:
@@ -27,45 +27,43 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     volumes:
-      - ~/data/ddl-rabbitmq:/var/lib/rabbitmq
+      - ~/data/oj-rabbitmq:/var/lib/rabbitmq
   ddl-backend:
     command: bash /app/docker/entrypoint.sh
     volumes:
-      - ~/data/ddl-backend:/data
-    image: 4ddl/ddlb
-    container_name: ddl-backend
+      - ~/data/oj-backend:/data
+    image: wustacm/oj-backend
+    container_name: oj-backend
     restart: always
     depends_on:
-      - ddl-redis
-      - ddl-postgres
-      - ddl-rabbitmq
+      - oj-redis
+      - oj-postgres
+      - oj-rabbitmq
     environment:
-      - REDIS_HOST=ddl-redis
-      - POSTGRES_HOST=ddl-postgres
-      - POSTGRES_DB=ddl
-      - POSTGRES_USER=ddlu
-      - POSTGRES_PASS=ddlp
-      - RABBITMQ_HOST=ddl-rabbitmq
+      - REDIS_HOST=oj-redis
+      - POSTGRES_HOST=oj-postgres
+      - POSTGRES_DB=oj
+      - POSTGRES_USER=user
+      - POSTGRES_PASS=pass
+      - RABBITMQ_HOST=oj-rabbitmq
       - RABBITMQ_USER=guest
       - RABBITMQ_PASS=guest
-      - DDL_ENV=production
+      - OJ_ENV=production
       - EMAIL_ENABLE=True
       - EMAIL_HOST=sample.com
       - EMAIL_HOST_USER=user@sample.com
       - EMAIL_HOST_PASSWORD=password
       - SECRET_KEY=secret_key
       - JUDGE_TOKEN=judge_token
-  ddl-web:
-    image: 4ddl/ddlf
-    container_name: ddl-web
+  oj-web:
+    image: wustacm/oj-frontend
+    container_name: oj-web
     depends_on:
-      - ddl-backend
+      - oj-backend
     restart: always
     environment:
-      - BACKEND_HOST=ddl-backend
+      - BACKEND_HOST=oj-backend
       - BACKEND_PORT=8000
-      - RABBITMQ_MANAGEMENT_HOST=ddl-rabbitmq
-      - RABBITMQ_MANAGEMENT_PORT=15672
     ports:
       - '0.0.0.0:80:80'
 
