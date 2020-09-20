@@ -1,19 +1,14 @@
 version: "3"
 services:
-  ddl-judge-dev:
+  oj-consumer:
     command: celery -A tasks worker -l info -Q judge
     volumes:
-      - ~/data/ddl-backend/test_cases:/judge/test_cases
-    image: 4ddl/ddlcw
-    container_name: ddl-judge-dev
+      - ~/data/oj-backend/test_cases:/judge/test_cases
+    image: wustacm/oj-consumer
+    container_name: oj-consumer
     restart: always
     environment:
-      - BACKEND_HOST=127.0.0.1
-      - BACKEND_PROTOCOL=http
-      - BACKEND_PORT=80
-      - RABBITMQ_HOST=127.0.0.1
-      - RABBITMQ_PORT=5672
-      - RABBITMQ_USER=guest
-      - RABBITMQ_PASS=guest
-      - DDLCW_DEBUG=True
-      - DDLCW_SYNC_ENABLE=True
+      - BACKEND_URL=http://127.0.0.1
+      - BROKER_URL=amqp://guest:guest@127.0.0.1:5672/
+      - OJ_DEBUG=True
+      - OJ_SYNC_ENABLE=True
